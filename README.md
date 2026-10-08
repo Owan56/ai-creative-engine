@@ -13,7 +13,7 @@ photo produit à la publicité prête à publier.
 
 | Phase | Contenu | État |
 |---|---|---|
-| 0 | Architecture, monorepo, interfaces, mock provider, tests | 🟡 en cours |
+| 0 | Architecture, monorepo, interfaces, mock provider, auth, tests | 🟡 en cours |
 | 1 | Dashboard, upload produit, génération mock, crédits | ⬜ |
 | 2 | Creative Director, prompt builder, concepts | ⬜ |
 | 3 | Provider LTX, ComfyUI, GPU cloud | ⬜ |
@@ -25,11 +25,14 @@ Phase 0 livrée à ce jour :
 - `@ace/database` — schéma et migrations
 - `@ace/billing` — crédits transactionnels : réservation, consommation,
   libération, idempotence des paiements
+- `@ace/auth` — mots de passe scrypt, sessions révocables, cloisonnement
+  strict entre comptes, validation d'upload, URL signées
 
-32 tests, TypeScript strict. Les garanties de facturation ont été vérifiées
-par mutation — voir [docs/billing.md](docs/billing.md).
+61 tests, TypeScript strict. Les garanties de facturation et de sécurité ont
+été vérifiées par mutation — voir [docs/billing.md](docs/billing.md) et
+[docs/security.md](docs/security.md).
 
-Reste à faire en phase 0 : Docker Compose, authentification, design system.
+Reste à faire en phase 0 : Docker Compose, design system.
 
 ## Démarrage
 
@@ -57,9 +60,11 @@ packages/
   ai-core/          contrat des moteurs, registre, routeur, provider factice
   database/         schéma SQL et migrations
   billing/          crédits transactionnels
+  auth/             authentification et cloisonnement des données
 docs/
   architecture.md   décisions d'architecture
   billing.md        garanties du système de crédits
+  security.md       contrôles de sécurité et leur vérification
   models.md         registre des licences de modèles
 ```
 
@@ -67,4 +72,5 @@ docs/
 
 - [Architecture](docs/architecture.md)
 - [Crédits et facturation](docs/billing.md)
+- [Sécurité](docs/security.md)
 - [Licences des modèles](docs/models.md) — **à lire avant d'activer un modèle**
