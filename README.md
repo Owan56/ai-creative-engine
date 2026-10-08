@@ -14,7 +14,7 @@ photo produit à la publicité prête à publier.
 | Phase | Contenu | État |
 |---|---|---|
 | 0 | Architecture, monorepo, interfaces, mock provider, auth, tests | 🟡 en cours |
-| 1 | Dashboard, upload produit, génération mock, crédits | ⬜ |
+| 1 | Dashboard, upload produit, génération mock, crédits | 🟡 en cours |
 | 2 | Creative Director, prompt builder, concepts | ⬜ |
 | 3 | Provider LTX, ComfyUI, GPU cloud | ⬜ |
 
@@ -27,8 +27,10 @@ Phase 0 livrée à ce jour :
   libération, idempotence des paiements
 - `@ace/auth` — mots de passe scrypt, sessions révocables, cloisonnement
   strict entre comptes, validation d'upload, URL signées
+- `@ace/queue` — chaîne de génération complète : réservation des crédits,
+  routage, exécution, règlement, file BullMQ
 
-61 tests, TypeScript strict. Les garanties de facturation et de sécurité ont
+77 tests, TypeScript strict. Les garanties de facturation et de sécurité ont
 été vérifiées par mutation — voir [docs/billing.md](docs/billing.md) et
 [docs/security.md](docs/security.md).
 
@@ -66,6 +68,7 @@ packages/
   database/         schéma SQL et migrations
   billing/          crédits transactionnels
   auth/             authentification et cloisonnement des données
+  queue/            orchestration des générations et file de jobs
 infrastructure/
   docker/           configuration des services de développement
 docs/
@@ -80,6 +83,7 @@ docs/
 
 - [Développement local](docs/development.md)
 - [Architecture](docs/architecture.md)
+- [Chaîne de génération](docs/generation.md)
 - [Crédits et facturation](docs/billing.md)
 - [Sécurité](docs/security.md)
 - [Licences des modèles](docs/models.md) — **à lire avant d'activer un modèle**
