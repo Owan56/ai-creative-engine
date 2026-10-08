@@ -1,0 +1,93 @@
+{
+  "brand": "Aurya",
+  "title": "Aurya — L'IA au service de vos ambitions",
+  "meta_description": "Aurya transforme une simple photo produit en publicité vidéo prête à publier sur TikTok, Instagram et vos campagnes payantes.",
+  "email": "contact@aurya.ai",
+  "lang": "fr",
+  "shape": "/tmp/aurya/aurya-a.svg",
+  "palette": [
+    "#10121C",
+    "#171A2B",
+    "#5B5FEF",
+    "#8B5CF6",
+    "#4DA3FF"
+  ],
+  "nav": [
+    "Accueil",
+    "À propos",
+    "Services",
+    "Résultats",
+    "Contact"
+  ],
+  "hero": {
+    "title": [
+      "Une photo.",
+      "Une pub qui vend."
+    ],
+    "lead": "Aurya transforme une simple photo produit en publicité vidéo prête à publier. Pour les boutiques en ligne qui ont besoin de créations nouvelles chaque semaine, sans studio ni monteur."
+  },
+  "about": {
+    "title": [
+      "L'IA au service",
+      "de vos ambitions"
+    ],
+    "text": "Une publicité vidéo coûte cher et prend des jours. Aurya la produit en quelques minutes, à partir de l'image que vous avez déjà. Vous décrivez le produit, choisissez la plateforme et le style, et l'outil écrit l'accroche, génère la scène, ajoute le texte et exporte au bon format. Vos créations restent les vôtres, vos fichiers restent privés."
+  },
+  "benefits": {
+    "title": [
+      "Ce que fait",
+      "Aurya pour vous"
+    ],
+    "items": [
+      {
+        "icon": "spark",
+        "text": "Plusieurs concepts proposés avant génération : vous choisissez l'angle qui vous parle."
+      },
+      {
+        "icon": "phone",
+        "text": "Export au format exact de TikTok, Reels, Feed ou YouTube, sans retouche."
+      },
+      {
+        "icon": "clock",
+        "text": "Une création prête en quelques minutes, pas en plusieurs jours."
+      },
+      {
+        "icon": "lock",
+        "text": "Vos images et vos vidéos restent privées, accessibles par vous seul."
+      }
+    ]
+  },
+  "results": {
+    "title": [
+      "Des chiffres",
+      "qui comptent"
+    ],
+    "lead": "Ordres de grandeur visés par le produit, à confirmer sur vos propres campagnes.",
+    "figures": []
+  },
+  "figures": [
+    {
+      "value": 3,
+      "suffix": " min",
+      "label": "pour passer d'une photo<br>à une publicité exportée"
+    },
+    {
+      "value": 12,
+      "suffix": "+",
+      "label": "variations créatives<br>testables par produit"
+    },
+    {
+      "value": 90,
+      "suffix": " %",
+      "label": "de budget production<br>économisé par création"
+    }
+  ],
+  "contact": {
+    "title": [
+      "Parlons de",
+      "vos produits."
+    ],
+    "lead": "Une boutique à alimenter, une campagne à lancer ?<br>Écrivez-nous."
+  },
+  "mark": "/tmp/aurya/aurya-mark.svg"
+}

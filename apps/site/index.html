@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aurya — L'IA au service de vos ambitions</title>
+<meta name="description" content="Aurya transforme une simple photo produit en publicité vidéo prête à publier sur TikTok, Instagram et vos campagnes payantes.">
+<link rel="stylesheet" href="./css/styles.css?v=20261008">
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three.module.js",
+    "three/examples/jsm/loaders/SVGLoader.js": "./vendor/SVGLoader.js"
+  }
+}
+</script>
+</head>
+<body>
+<div class="loader" id="loader" role="status" aria-live="polite">
+  <div class="loader-inner">
+    <span class="loader-value"><span id="loader-count">00</span><span class="loader-unit">%</span></span>
+    <span class="loader-bar"><span id="loader-fill"></span></span>
+    <span class="loader-hint">Chargement</span>
+  </div>
+</div>
+<script>
+(function () {
+  var el = document.getElementById('loader'), count = document.getElementById('loader-count'), fill = document.getElementById('loader-fill');
+  var start = performance.now(), ready = false, rampAt = 0, shownAtRamp = 0, shown = 0, finished = false;
+  var MIN_HOLD = 0, RAMP = 180;   // ms: minimum time on screen, then the run to 100
+  document.body.classList.add('is-loading');
+  function finish() {
+    if (finished) return;
+    finished = true;
+    count.textContent = '100';
+    fill.style.transform = 'scaleX(1)';
+    el.classList.add('is-done');
+    document.body.classList.remove('is-loading');
+    setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 900);
+  }
+  function tick(now) {
+    if (finished) return;
+    if (ready && !rampAt && now - start >= MIN_HOLD) { rampAt = now; shownAtRamp = shown; }
+    if (rampAt) {
+      var k = Math.min(1, (now - rampAt) / RAMP);
+      shown = shownAtRamp + (100 - shownAtRamp) * (1 - Math.pow(1 - k, 3));
+    } else {
+      // Time-based pseudo progress while the modules and the scene are prepared.
+      shown = 92 * (1 - Math.exp(-(now - start) / 1600));
+    }
+    count.textContent = String(Math.round(shown)).padStart(2, '0');
+    fill.style.transform = 'scaleX(' + (shown / 100) + ')';
+    if (rampAt && shown >= 99.5) { finish(); return; }
+    requestAnimationFrame(tick);
+  }
+  window.__glassLoader = { done: function () { ready = true; } };
+  requestAnimationFrame(tick);
+  setTimeout(function () { window.__glassLoader.done(); }, 15000);   // never trap the visitor
+  setTimeout(finish, 17000);
+})();
+</script>
+<div class="cursor-inner"></div>
+<div class="cursor-outer"><span class="cursor-ticks"><span></span><span></span><span></span><span></span></span></div>
+<div class="cursor-label" aria-hidden="true">000</div>
+<div class="cinematic-container">
+<div class="main-header">
+  <a class="brand" href="#slide-1">
+    <span class="brand-mark" aria-hidden="true"><svg role="img" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" fill-rule="evenodd" d="M 475.3 144.1 L 480.2 135.3 L 485.2 128.4 L 490.1 123.5 L 495.1 120.5 L 500.0 119.6 L 504.9 120.5 L 509.9 123.5 L 514.8 128.4 L 519.8 135.3 L 524.7 144.1 L 870.3 830.9 L 874.4 840.2 L 877.0 848.6 L 877.9 855.9 L 877.3 862.3 L 875.1 867.7 L 871.2 872.1 L 865.8 875.6 L 858.8 878.0 L 850.2 879.5 L 840.0 880.0 L 720.0 880.0 L 709.3 879.5 L 699.1 878.1 L 689.4 875.7 L 680.3 872.4 L 671.8 868.2 L 663.7 862.9 L 656.3 856.8 L 649.3 849.7 L 642.9 841.6 L 637.1 832.6 L 527.9 647.4 L 522.3 638.9 L 516.8 632.2 L 511.2 627.5 L 505.6 624.6 L 500.0 623.7 L 494.4 624.6 L 488.8 627.5 L 483.2 632.2 L 477.7 638.9 L 472.1 647.4 L 362.9 832.6 L 357.1 841.6 L 350.7 849.7 L 343.7 856.8 L 336.3 862.9 L 328.2 868.2 L 319.7 872.4 L 310.6 875.7 L 300.9 878.1 L 290.7 879.5 L 280.0 880.0 L 160.0 880.0 L 149.8 879.5 L 141.2 878.0 L 134.2 875.6 L 128.8 872.1 L 124.9 867.7 L 122.7 862.3 L 122.1 855.9 L 123.0 848.6 L 125.6 840.2 L 129.7 830.9 Z M 426.6 476.7 L 424.7 481.2 L 423.5 485.1 L 423.0 488.6 L 423.3 491.6 L 424.4 494.2 L 426.2 496.3 L 428.8 497.9 L 432.1 499.1 L 436.2 499.8 L 441.0 500.0 L 559.0 500.0 L 563.8 499.8 L 567.9 499.1 L 571.2 497.9 L 573.8 496.3 L 575.6 494.2 L 576.7 491.6 L 577.0 488.6 L 576.5 485.1 L 575.3 481.2 L 573.4 476.7 L 511.6 353.3 L 509.3 349.1 L 507.0 345.8 L 504.7 343.5 L 502.3 342.1 L 500.0 341.6 L 497.7 342.1 L 495.3 343.5 L 493.0 345.8 L 490.7 349.1 L 488.4 353.3 Z"/></svg></span>
+    <span class="brand-text">Aurya</span>
+  </a>
+  <nav class="header-nav" aria-label="Chapitres">
+    <a href="#slide-1" class="nav-link is-active">Accueil</a>
+    <a href="#slide-2" class="nav-link">À propos</a>
+    <a href="#slide-3" class="nav-link">Services</a>
+    <a href="#slide-4" class="nav-link">Résultats</a>
+  </nav>
+  <div class="header-actions">
+    <span class="header-counter" aria-hidden="true"><span id="brand-chapter">01</span><span class="counter-sep"></span>05</span>
+    <a href="#contact" class="contact-btn">Contact <span class="btn-arrow">&#8599;</span></a>
+  </div>
+</div>
+
+<div class="slide" id="slide-1">
+  <h2 class="slide-title">Une photo. <br>Une pub qui vend.</h2>
+  <div class="desc-row">
+    <p class="slide-desc col-1">Aurya transforme une simple photo produit en publicité vidéo prête à publier. Pour les boutiques en ligne qui ont besoin de créations nouvelles chaque semaine, sans studio ni monteur.</p>
+  </div>
+</div>
+
+<div class="slide" id="slide-2">
+  <h2 class="slide-title">L'IA au service <br>de vos ambitions</h2>
+  <p class="slide-desc">Une publicité vidéo coûte cher et prend des jours. Aurya la produit en quelques minutes, à partir de l'image que vous avez déjà. Vous décrivez le produit, choisissez la plateforme et le style, et l'outil écrit l'accroche, génère la scène, ajoute le texte et exporte au bon format. Vos créations restent les vôtres, vos fichiers restent privés.</p>
+</div>
+
+<div class="slide" id="slide-3">
+  <h2 class="slide-title">Ce que fait <br>Aurya pour vous</h2>
+  <ul class="benefits">
+    <li class="benefit"><span class="benefit-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 3 17h14L10 3z"/><path d="M4.5 12.5h11" opacity=".55"/></svg></span><p>Plusieurs concepts proposés avant génération : vous choisissez l'angle qui vous parle.</p></li>
+    <li class="benefit"><span class="benefit-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 3.8 8 7l-1.6 1.6a9 9 0 0 0 5 5L13 12l3.2 1.8-.6 2.4c-.2.7-.9 1.1-1.6 1A13.6 13.6 0 0 1 3.8 6.2c-.1-.7.3-1.4 1-1.6l1.4-.8z"/></svg></span><p>Export au format exact de TikTok, Reels, Feed ou YouTube, sans retouche.</p></li>
+    <li class="benefit"><span class="benefit-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7"/><path d="M10 6v4.2l2.8 1.8"/></svg></span><p>Une création prête en quelques minutes, pas en plusieurs jours.</p></li>
+    <li class="benefit"><span class="benefit-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="8.5" width="11" height="8" rx="1.8"/><path d="M7.2 8.5V6.6a2.8 2.8 0 0 1 5.6 0v1.9"/></svg></span><p>Vos images et vos vidéos restent privées, accessibles par vous seul.</p></li>
+  </ul>
+</div>
+
+<div class="slide" id="slide-4">
+  <h2 class="slide-title">Des chiffres <br>qui comptent</h2>
+  <p class="slide-desc">Ordres de grandeur visés par le produit, à confirmer sur vos propres campagnes.</p>
+  <dl class="figures">
+    <div class="figure"><dt><span class="figure-value" data-count="3" data-decimals="0">3</span> min</dt><dd>pour passer d'une photo<br>à une publicité exportée</dd></div>
+    <div class="figure"><dt><span class="figure-value" data-count="12" data-decimals="0">12</span>+</dt><dd>variations créatives<br>testables par produit</dd></div>
+    <div class="figure"><dt><span class="figure-value" data-count="90" data-decimals="0">90</span> %</dt><dd>de budget production<br>économisé par création</dd></div>
+  </dl>
+</div>
+</div>
+
+<div class="scroll-stage" aria-hidden="true"></div>
+<section class="contact" id="contact" aria-labelledby="contact-title">
+  <div class="contact-inner">
+    <div class="contact-intro">
+      <p class="contact-eyebrow"><span class="eyebrow-dot"></span>Contact / 05</p>
+      <h2 class="contact-title" id="contact-title"><span class="line"><span class="line-inner">Parlons de</span></span><span class="line muted"><span class="line-inner">vos produits.</span></span></h2>
+      <p class="contact-lead">Une boutique à alimenter, une campagne à lancer ?<br>Écrivez-nous.</p>
+      <a class="contact-mail" href="mailto:contact@aurya.ai">contact@aurya.ai <span class="arrow">&#8599;</span></a>
+    </div>
+    <form class="contact-card" id="contact-form" data-email="contact@aurya.ai">
+      <div class="card-head"><span>Votre message</span><span class="arrow">&#8599;</span></div>
+      <div class="field-grid">
+        <label class="field"><span class="field-label">Votre nom <em>*</em></span><input type="text" name="name" placeholder="Nom et prénom" autocomplete="name" required></label>
+        <label class="field"><span class="field-label">Votre e-mail <em>*</em></span><input type="email" name="email" placeholder="vous@entreprise.com" autocomplete="email" required></label>
+        <label class="field field-wide"><span class="field-label">Entreprise <small>optionnel</small></span><input type="text" name="company" placeholder="Nom de l'entreprise" autocomplete="organization"></label>
+        <label class="field field-wide"><span class="field-label">Votre projet <em>*</em></span><textarea name="project" rows="4" placeholder="Ce que vous aimeriez faire…" required></textarea></label>
+      </div>
+      <div class="card-foot">
+        <p class="card-note">Votre messagerie s'ouvrira<br>avec le message prêt à envoyer.</p>
+        <button type="submit" class="pill-btn"><span class="btn-label">Préparer mon e-mail</span> <span class="arrow">&#8599;</span></button>
+      </div>
+    </form>
+  </div>
+  <footer class="contact-footer">
+    <span>&copy; 2026 &mdash; Aurya</span>
+    <span class="footer-spec">Three.js · WebGL 2 · 100 % temps réel</span>
+    <a href="#slide-1" class="footer-top">Haut de page <span aria-hidden="true">&uarr;</span></a>
+  </footer>
+</section>
+<div class="grid-horizontal-line"></div>
+<div class="header-progress" aria-hidden="true"><span id="header-progress-fill"></span></div>
+<div class="story-progress" aria-hidden="true">
+  <div class="story-dashes">
+    <div class="story-dash"><div class="story-dash-fill" id="dash-fill-1"></div></div>
+    <div class="story-dash"><div class="story-dash-fill" id="dash-fill-2"></div></div>
+    <div class="story-dash"><div class="story-dash-fill" id="dash-fill-3"></div></div>
+    <div class="story-dash"><div class="story-dash-fill" id="dash-fill-4"></div></div>
+  </div>
+</div>
+<canvas id="webgl"></canvas>
+<script type="module" src="./js/app.js?v=20261008"></script>
+</body>
+</html>
