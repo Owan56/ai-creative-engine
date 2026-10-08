@@ -1,0 +1,90 @@
+.auth {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: var(--sp-6);
+  /* La lueur d'ambiance, une seule fois, en haut. */
+  background: var(--aurya-ambient), var(--aurya-bg);
+  background-repeat: no-repeat;
+  background-size: 100% 560px;
+}
+
+.auth__card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-8);
+}
+
+.auth__brand .aurya-mark {
+  width: 24px;
+  height: 24px;
+}
+
+.auth__wordmark {
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.auth__title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.auth__lead {
+  margin-top: var(--sp-2);
+  color: var(--aurya-text-secondary);
+  font-size: var(--fs-small);
+}
+
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  margin-top: var(--sp-6);
+}
+
+.auth__error {
+  padding: var(--sp-3);
+  border: 1px solid var(--aurya-error);
+  border-radius: var(--radius-input);
+  /* Fond très peu saturé : l'erreur se voit sans agresser. */
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--aurya-text);
+  font-size: var(--fs-small);
+}
+
+.auth__switch {
+  margin-top: var(--sp-5);
+  font-size: var(--fs-small);
+  color: var(--aurya-text-secondary);
+}
+
+.auth__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 550;
+  color: var(--aurya-blue);
+  cursor: pointer;
+}
+
+.auth__link:hover {
+  text-decoration: underline;
+}
+
+.auth__note {
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--aurya-border);
+  font-size: var(--fs-caption);
+  color: var(--aurya-text-muted);
+}

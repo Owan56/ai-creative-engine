@@ -256,3 +256,13 @@
     height: 148px;
   }
 }
+
+/* Squelettes de chargement : la page garde sa forme au lieu de sauter. */
+.gen__skeleton-line {
+  height: 12px;
+  width: 80%;
+}
+
+.gen__skeleton-line--short {
+  width: 50%;
+}

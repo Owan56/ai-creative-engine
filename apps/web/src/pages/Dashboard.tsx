@@ -10,10 +10,10 @@ import {
   Button,
   Card,
   EmptyState,
-  Progress,
   StatusBadge,
   type StatusKind,
 } from "../components/ui.js";
+import type { GenerationRow } from "../lib/api.js";
 import "./Dashboard.css";
 
 export interface Generation {
@@ -25,11 +25,51 @@ export interface Generation {
   readonly credits: number;
 }
 
+/**
+ * Traduit une ligne de l'API en ce que l'écran affiche.
+ *
+ * L'utilisateur n'a pas à connaître les statuts internes : QUEUED et
+ * PROCESSING deviennent tous deux « Processing », et le format d'image devient
+ * la plateforme visée, parce que c'est ce qu'il a choisi.
+ */
+export function toGeneration(row: GenerationRow): Generation {
+  const STATUT: Record<GenerationRow["status"], StatusKind> = {
+    QUEUED: "processing",
+    PROCESSING: "processing",
+    GENERATING: "generating",
+    POST_PROCESSING: "processing",
+    COMPLETED: "completed",
+    FAILED: "failed",
+    CANCELLED: "failed",
+  };
+
+  const PLATEFORME: Record<string, string> = {
+    "9:16": "TikTok / Reels",
+    "1:1": "Feed",
+    "4:5": "Feed",
+    "16:9": "YouTube",
+  };
+
+  return {
+    id: row.id,
+    // Le prompt fait office de titre, tronqué pour tenir sur une ligne.
+    title: row.prompt.length > 48 ? `${row.prompt.slice(0, 47)}…` : row.prompt,
+    status: STATUT[row.status] ?? "processing",
+    platform: PLATEFORME[row.aspect_ratio] ?? row.aspect_ratio,
+    duration: `${row.duration_seconds} s`,
+    credits: row.actual_credits ?? row.estimated_credits,
+  };
+}
+
 export interface DashboardProps {
   readonly userName: string;
+  /** Crédits réellement engageables maintenant. */
   readonly credits: number;
-  readonly creditsTotal: number;
+  /** Crédits gelés par des générations en cours. */
+  readonly creditsReserved: number;
   readonly generations: readonly Generation[];
+  readonly loading?: boolean;
+  readonly error?: string | null;
   readonly onCreate: () => void;
   readonly onOpen: (id: string) => void;
 }
@@ -37,14 +77,13 @@ export interface DashboardProps {
 export function Dashboard({
   userName,
   credits,
-  creditsTotal,
+  creditsReserved,
   generations,
+  loading,
+  error,
   onCreate,
   onOpen,
 }: DashboardProps) {
-  const utilises = Math.max(0, creditsTotal - credits);
-  const pct = creditsTotal > 0 ? (utilises / creditsTotal) * 100 : 0;
-
   return (
     <div className="dash">
       <header className="dash__head">
@@ -65,18 +104,20 @@ export function Dashboard({
             <span className="stat__label-short">Credits</span>
           </p>
           <p className="stat__value">{credits}</p>
-          <p className="stat__meta">sur {creditsTotal} ce mois-ci</p>
+          <p className="stat__meta">disponibles maintenant</p>
         </Card>
 
         <Card>
-          <p className="stat__label">Usage</p>
-          <p className="stat__value">
-            {utilises}
-            <span className="stat__value-sub"> / {creditsTotal}</span>
+          <p className="stat__label">
+            <span className="stat__label-long">In progress</span>
+            <span className="stat__label-short">En cours</span>
           </p>
-          <div className="stat__progress">
-            <Progress value={pct} label="Crédits consommés ce mois-ci" />
-          </div>
+          <p className="stat__value">{creditsReserved}</p>
+          <p className="stat__meta">
+            {creditsReserved === 0
+              ? "aucune génération en cours"
+              : "crédits engagés, pas encore débités"}
+          </p>
         </Card>
 
         <Card>
@@ -100,7 +141,25 @@ export function Dashboard({
           ) : null}
         </div>
 
-        {generations.length === 0 ? (
+        {error ? (
+          <Card large>
+            <EmptyState title="Chargement impossible." text={error} />
+          </Card>
+        ) : loading ? (
+          <ul className="gen-grid" aria-busy="true">
+            {[0, 1, 2].map((i) => (
+              <li key={i}>
+                <Card className="gen">
+                  <div className="gen__preview shimmer" />
+                  <div className="gen__body">
+                    <div className="shimmer gen__skeleton-line" />
+                    <div className="shimmer gen__skeleton-line gen__skeleton-line--short" />
+                  </div>
+                </Card>
+              </li>
+            ))}
+          </ul>
+        ) : generations.length === 0 ? (
           <Card large>
             <EmptyState
               title="No creations yet."

@@ -66,6 +66,29 @@ const app = buildServer({
   ...(process.env.CORS_ORIGIN ? { corsOrigin: process.env.CORS_ORIGIN } : {}),
 });
 
+/**
+ * En production, l'API sert aussi le build de l'interface.
+ *
+ * Une seule origine : pas de CORS à ouvrir, pas de proxy à configurer, et le
+ * chemin relatif /v1 que l'interface appelle tombe juste. Absent, le serveur
+ * reste une API pure — c'est le cas en développement, où Vite sert l'interface.
+ */
+const webDir = process.env.WEB_DIST;
+if (webDir) {
+  const fastifyStatic = (await import("@fastify/static")).default;
+  await app.register(fastifyStatic, { root: webDir });
+
+  // Toute route inconnue rend l'application : la navigation côté client doit
+  // survivre à un rechargement sur une URL profonde.
+  app.setNotFoundHandler((request, reply) => {
+    if (request.url.startsWith("/v1")) {
+      return reply.code(404).send({ error: "Route inconnue." });
+    }
+    return reply.sendFile("index.html");
+  });
+  console.log(`Interface servie depuis ${webDir}`);
+}
+
 const port = Number(process.env.PORT ?? 3001);
 await app.listen({ port, host: "0.0.0.0" });
 console.log(`API sur http://localhost:${port}`);

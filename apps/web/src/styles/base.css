@@ -121,3 +121,9 @@ a {
     opacity: 0.9;
   }
 }
+
+/** Écran d'amorçage : on ne montre rien avant de savoir si la session vaut. */
+.boot {
+  min-height: 100vh;
+  background: var(--aurya-bg);
+}
