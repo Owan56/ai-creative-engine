@@ -3,3 +3,8 @@ export * from "./providers/VideoModelProvider.js";
 export * from "./providers/MockVideoProvider.js";
 export * from "./registry/ModelRegistry.js";
 export * from "./router/ModelRouter.js";
+export * from "./gpu/GPUBackend.js";
+export * from "./gpu/RunPodBackend.js";
+export * from "./providers/ComfyUIClient.js";
+export * from "./providers/LTXProvider.js";
+export * from "./registry/bootstrap.js";
