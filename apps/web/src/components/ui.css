@@ -1,0 +1,226 @@
+/** Styles des primitives. Tout vient des tokens. */
+
+/* ---------------------------------------------------------------- Button */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  height: 40px;
+  padding: 0 var(--sp-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-btn);
+  font: inherit;
+  font-size: var(--fs-small);
+  font-weight: 550;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    filter var(--t-base) var(--ease),
+    background-color var(--t-base) var(--ease),
+    border-color var(--t-base) var(--ease),
+    transform var(--t-fast) var(--ease);
+}
+
+.btn--lg {
+  height: 48px;
+  padding: 0 var(--sp-6);
+  font-size: var(--fs-body);
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+/* Le gradient signature ne sert qu'ici, et à l'indicateur de navigation. */
+.btn--primary {
+  background: var(--aurya-gradient);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn--primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.btn--secondary {
+  background: var(--aurya-surface-2);
+  border-color: var(--aurya-border);
+  color: var(--aurya-text);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  border-color: var(--aurya-indigo);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--aurya-text-secondary);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  color: var(--aurya-text);
+  background: var(--aurya-surface-2);
+}
+
+.btn--danger {
+  background: var(--aurya-error);
+  color: #fff;
+}
+
+.btn--danger:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* ---------------------------------------------------------------- Card */
+
+.card {
+  background: var(--aurya-surface);
+  border: 1px solid var(--aurya-border);
+  border-radius: var(--radius-card);
+  padding: var(--sp-5);
+  /* La profondeur vient du contraste et de la bordure, pas de l'ombre. */
+  box-shadow: var(--shadow-sm);
+}
+
+.card--lg {
+  border-radius: var(--radius-card-lg);
+  padding: var(--sp-6);
+}
+
+.card--interactive {
+  cursor: pointer;
+  transition:
+    transform var(--t-base) var(--ease),
+    border-color var(--t-base) var(--ease);
+}
+
+.card--interactive:hover {
+  /* Deux pixels, pas davantage. */
+  transform: translateY(-2px);
+  border-color: var(--aurya-indigo);
+}
+
+/* ---------------------------------------------------------------- Badge */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: 24px;
+  padding: 0 var(--sp-3);
+  border: 1px solid var(--aurya-border);
+  border-radius: 999px;
+  background: var(--aurya-surface-2);
+  font-size: var(--fs-caption);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--aurya-text-secondary);
+}
+
+.badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.badge--ready { color: var(--aurya-blue); }
+.badge--generating { color: var(--aurya-indigo); }
+.badge--processing { color: var(--aurya-violet); }
+.badge--completed { color: var(--aurya-success); }
+.badge--failed { color: var(--aurya-error); }
+
+/* ---------------------------------------------------------------- Field */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.field__label {
+  font-size: var(--fs-small);
+  font-weight: 550;
+  color: var(--aurya-text-secondary);
+}
+
+.field__input {
+  height: 40px;
+  padding: 0 var(--sp-3);
+  background: var(--aurya-surface-2);
+  border: 1px solid var(--aurya-border);
+  border-radius: var(--radius-input);
+  font: inherit;
+  font-size: var(--fs-body);
+  color: var(--aurya-text);
+  transition: border-color var(--t-base) var(--ease);
+}
+
+.field__input:hover {
+  border-color: var(--aurya-text-muted);
+}
+
+.field__hint {
+  font-size: var(--fs-caption);
+  color: var(--aurya-text-muted);
+}
+
+/* ---------------------------------------------------------------- Progress */
+
+.progress {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--aurya-surface-2);
+  overflow: hidden;
+}
+
+.progress__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--aurya-gradient);
+  transition: width var(--t-slow) var(--ease);
+}
+
+/* ---------------------------------------------------------------- EmptyState */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-12) var(--sp-6);
+  text-align: center;
+}
+
+.empty__title {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  letter-spacing: var(--ls-h3);
+}
+
+.empty__text {
+  max-width: 42ch;
+  color: var(--aurya-text-secondary);
+}
+
+.empty__action {
+  margin-top: var(--sp-2);
+}

@@ -1,0 +1,128 @@
+/**
+ * Tokens Aurya — source unique de vérité.
+ *
+ * Aucune couleur, aucun rayon, aucune durée ne doit être écrit en dur dans un
+ * composant. Les valeurs vivent ici, et seulement ici.
+ *
+ * Le sombre est le mode principal. Les mêmes noms sont redéclarés sous
+ * [data-theme="light"], pour qu'un mode clair s'ajoute plus tard sans
+ * réécrire un seul composant.
+ */
+
+:root,
+:root[data-theme="dark"] {
+  /* Surfaces — 70 % de l'interface */
+  --aurya-bg: #08090d;
+  --aurya-surface: #10121c;
+  --aurya-surface-2: #171a2b;
+  --aurya-border: #24283a;
+
+  /* Accents — 10 % de l'interface, pas davantage */
+  --aurya-blue: #4da3ff;
+  --aurya-indigo: #5b5fef;
+  --aurya-violet: #8b5cf6;
+
+  /* Typographie — 20 % de l'interface */
+  --aurya-text: #f5f7ff;
+  --aurya-text-secondary: #c7cbd9;
+  --aurya-text-muted: #777d91;
+
+  /* États. Jamais de couleur sursaturée. */
+  --aurya-success: #22c55e;
+  --aurya-warning: #f59e0b;
+  --aurya-error: #ef4444;
+  --aurya-info: var(--aurya-blue);
+
+  /* Le gradient est un accent, jamais un fond. */
+  --aurya-gradient: linear-gradient(135deg, #4da3ff 0%, #5b5fef 45%, #8b5cf6 100%);
+
+  /* Lueur d'ambiance, très discrète. Pas de particules, pas de néon. */
+  --aurya-ambient: radial-gradient(
+    circle at 50% 0%,
+    rgba(91, 95, 239, 0.12),
+    transparent 50%
+  );
+
+  /* Rayons */
+  --radius-sm: 6px;
+  --radius-input: 8px;
+  --radius-btn: 10px;
+  --radius-card: 14px;
+  --radius-card-lg: 18px;
+  --radius-modal: 20px;
+
+  /* Ombres : très faibles. La profondeur vient du contraste et des bordures. */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+
+  /* Mouvement : 200-300 ms, ease-out, et un but. */
+  --t-fast: 160ms;
+  --t-base: 220ms;
+  --t-slow: 300ms;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Espacements, échelle de 4 */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* Typographie */
+  --font: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+
+  --fs-display: clamp(40px, 5vw, 64px);
+  --fs-h1: clamp(32px, 4vw, 48px);
+  --fs-h2: clamp(26px, 3vw, 36px);
+  --fs-h3: 22px;
+  --fs-body: 15px;
+  --fs-small: 13px;
+  --fs-caption: 12px;
+
+  --ls-display: -0.04em;
+  --ls-h1: -0.03em;
+  --ls-h2: -0.02em;
+  --ls-h3: -0.01em;
+
+  --sidebar-w: 248px;
+  --topbar-h: 64px;
+}
+
+/**
+ * Mode clair — prévu, pas encore activé.
+ * Les noms ne changent pas : les composants n'ont rien à savoir du thème.
+ */
+:root[data-theme="light"] {
+  --aurya-bg: #ffffff;
+  --aurya-surface: #f7f8fc;
+  --aurya-surface-2: #eef0f7;
+  --aurya-border: #dfe3ee;
+
+  --aurya-text: #0b0d14;
+  --aurya-text-secondary: #474d60;
+  --aurya-text-muted: #777d91;
+
+  --aurya-ambient: radial-gradient(
+    circle at 50% 0%,
+    rgba(91, 95, 239, 0.08),
+    transparent 50%
+  );
+
+  --shadow-sm: 0 1px 2px rgba(11, 13, 20, 0.06);
+  --shadow-md: 0 4px 12px rgba(11, 13, 20, 0.08);
+}
+
+/* Respecte le réglage système : pas d'animation imposée. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --t-fast: 0ms;
+    --t-base: 0ms;
+    --t-slow: 0ms;
+  }
+}

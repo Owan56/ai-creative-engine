@@ -1,0 +1,123 @@
+/** Base et primitives partagées. Tout vient des tokens. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  color: var(--aurya-text);
+  background: var(--aurya-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p,
+figure {
+  margin: 0;
+}
+
+h1 {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  letter-spacing: var(--ls-h1);
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: var(--fs-h2);
+  font-weight: 650;
+  letter-spacing: var(--ls-h2);
+  line-height: 1.15;
+}
+
+h3 {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  letter-spacing: var(--ls-h3);
+  line-height: 1.25;
+}
+
+a {
+  color: var(--aurya-blue);
+  text-decoration: none;
+}
+
+/**
+ * Focus visible partout, sans exception. Un anneau indigo discret, jamais
+ * supprimé : c'est la seule façon de naviguer au clavier.
+ */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--aurya-indigo);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+::placeholder {
+  color: var(--aurya-text-muted);
+}
+
+::selection {
+  background: rgba(91, 95, 239, 0.35);
+}
+
+/* Réservé aux lecteurs d'écran. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/**
+ * Shimmer de chargement, très léger.
+ * Pas de spinner, pas de particules.
+ */
+@keyframes aurya-shimmer {
+  to {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--aurya-surface-2) 0%,
+    var(--aurya-border) 50%,
+    var(--aurya-surface-2) 100%
+  );
+  background-size: 200% 100%;
+  animation: aurya-shimmer 1.6s linear infinite;
+  border-radius: var(--radius-sm);
+}
+
+/** Lueur lente pendant l'analyse IA. Le mouvement a un but : il dit « ça travaille ». */
+@keyframes aurya-drift {
+  0%,
+  100% {
+    transform: translateX(-30%);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateX(30%);
+    opacity: 0.9;
+  }
+}
