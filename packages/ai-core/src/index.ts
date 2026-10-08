@@ -8,3 +8,4 @@ export * from "./gpu/RunPodBackend.js";
 export * from "./providers/ComfyUIClient.js";
 export * from "./providers/LTXProvider.js";
 export * from "./registry/bootstrap.js";
+export * from "./providers/FalProvider.js";

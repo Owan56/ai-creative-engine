@@ -5,6 +5,7 @@
  * se limite à une entrée ici plus son fichier de provider (§119).
  */
 
+import { FalProvider } from "../providers/FalProvider.js";
 import { LTXProvider } from "../providers/LTXProvider.js";
 import { MockVideoProvider } from "../providers/MockVideoProvider.js";
 import { ModelRegistry, type ModelLicense } from "./ModelRegistry.js";
@@ -13,6 +14,16 @@ export const LICENCES: Readonly<Record<string, ModelLicense>> = {
   mock: {
     name: "Interne",
     sourceUrl: "https://github.com/Owan56/ai-creative-engine",
+    commercialAllowed: true,
+    territorialRestrictions: [],
+    attributionRequired: false,
+    verifiedAt: "2026-10-08",
+  },
+  fal: {
+    name: "Service hébergé — conditions du fournisseur",
+    sourceUrl: "https://fal.ai/terms",
+    // L'exploitation commerciale est le but même du service, et le
+    // fournisseur gère la licence du modèle qu'il héberge.
     commercialAllowed: true,
     territorialRestrictions: [],
     attributionRequired: false,
@@ -33,6 +44,8 @@ export const LICENCES: Readonly<Record<string, ModelLicense>> = {
 };
 
 export interface BootstrapConfig {
+  /** Clé fal.ai. Présente, le moteur hébergé est disponible. */
+  readonly falApiKey?: string;
   /** `mock` en développement, `router` en production (§113). */
   readonly videoProvider?: string;
   readonly ltxEnabled?: boolean;
@@ -46,6 +59,7 @@ export function configFromEnv(
 ): BootstrapConfig {
   return {
     videoProvider: env.VIDEO_PROVIDER ?? "mock",
+    ...(env.FAL_KEY ? { falApiKey: env.FAL_KEY } : {}),
     ltxEnabled: env.LTX_ENABLED === "true",
     ...(env.LTX_ENDPOINT ? { ltxEndpoint: env.LTX_ENDPOINT } : {}),
     ltxCommercialVerified: env.LTX_COMMERCIAL_VERIFIED === "true",
@@ -61,6 +75,16 @@ export function buildRegistry(config: BootstrapConfig = {}): ModelRegistry {
     enabled: config.videoProvider !== "router",
     priority: -100,
   });
+
+  // Moteur hébergé : aucune infrastructure, facturé à la seconde produite.
+  // C'est le moteur de lancement, avant qu'un GPU propre ne devienne rentable.
+  if (config.falApiKey) {
+    registre.register(
+      new FalProvider({ apiKey: config.falApiKey }),
+      LICENCES.fal!,
+      { enabled: true, priority: 5 },
+    );
+  }
 
   if (config.ltxEnabled && config.ltxEndpoint) {
     registre.register(

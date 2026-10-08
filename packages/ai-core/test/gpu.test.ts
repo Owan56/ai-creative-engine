@@ -147,3 +147,26 @@ describe("bootstrap du registre", () => {
     expect(r.usable().map((e) => e.provider.id)).toEqual(["ltx"]);
   });
 });
+
+describe("choix du moteur selon la configuration", () => {
+  it("expose le moteur hébergé dès qu'une clé fal est fournie", async () => {
+    const { buildRegistry } = await import("../src/registry/bootstrap.js");
+    const r = buildRegistry({ videoProvider: "router", falApiKey: "k" });
+    expect(r.usable().map((e) => e.provider.id)).toEqual(["fal-ltx"]);
+  });
+
+  it("préfère le GPU propre au moteur hébergé quand les deux existent", async () => {
+    const { buildRegistry } = await import("../src/registry/bootstrap.js");
+    const r = buildRegistry({
+      videoProvider: "router",
+      falApiKey: "k",
+      ltxEnabled: true,
+      ltxEndpoint: "http://gpu",
+      ltxCommercialVerified: true,
+    });
+    // Le GPU a la priorité la plus haute : une fois rentable, il passe devant.
+    const parPriorite = [...r.usable()].sort((a, b) => b.priority - a.priority);
+    expect(parPriorite[0]!.provider.id).toBe("ltx");
+    expect(r.usable()).toHaveLength(2);
+  });
+});
