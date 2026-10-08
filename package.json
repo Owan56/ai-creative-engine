@@ -9,7 +9,12 @@
   ],
   "scripts": {
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "dev:up": "docker compose -f docker-compose.dev.yml up -d --wait",
+    "dev:down": "docker compose -f docker-compose.dev.yml down",
+    "dev:reset": "docker compose -f docker-compose.dev.yml down -v",
+    "dev:logs": "docker compose -f docker-compose.dev.yml logs -f",
+    "db:migrate": "tsx packages/database/src/cli.ts"
   },
   "engines": {
     "node": ">=20"
@@ -17,6 +22,7 @@
   "devDependencies": {
     "@types/node": "^26.6.4",
     "@types/pg": "^8.23.1",
+    "tsx": "^4.23.15",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0"
   },

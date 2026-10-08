@@ -32,13 +32,18 @@ Phase 0 livrée à ce jour :
 été vérifiées par mutation — voir [docs/billing.md](docs/billing.md) et
 [docs/security.md](docs/security.md).
 
-Reste à faire en phase 0 : Docker Compose, design system.
+Environnement de développement complet via Docker Compose : `npm run dev:up`
+démarre Postgres, Redis et un stockage S3, et attend qu'ils soient sains.
+
+Reste à faire en phase 0 : design system.
 
 ## Démarrage
 
 ```bash
 npm install
-npm run typecheck
+cp .env.example .env
+npm run dev:up        # postgres, redis, stockage S3
+npm run db:migrate
 npm test
 ```
 
@@ -61,8 +66,11 @@ packages/
   database/         schéma SQL et migrations
   billing/          crédits transactionnels
   auth/             authentification et cloisonnement des données
+infrastructure/
+  docker/           configuration des services de développement
 docs/
   architecture.md   décisions d'architecture
+  development.md    démarrage local
   billing.md        garanties du système de crédits
   security.md       contrôles de sécurité et leur vérification
   models.md         registre des licences de modèles
@@ -70,6 +78,7 @@ docs/
 
 ## Documentation
 
+- [Développement local](docs/development.md)
 - [Architecture](docs/architecture.md)
 - [Crédits et facturation](docs/billing.md)
 - [Sécurité](docs/security.md)

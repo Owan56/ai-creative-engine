@@ -1,0 +1,105 @@
+# Environnement de développement complet (cahier des charges §110, §111).
+#
+#     npm run dev:up        démarre la stack et attend qu'elle soit saine
+#     npm run db:migrate    applique les migrations
+#     npm test              lance les suites
+#
+# Aucun GPU n'est nécessaire : le provider par défaut est le mock (§112).
+#
+# Les identifiants ci-dessous sont volontairement triviaux : cette stack est
+# locale et ne doit jamais être exposée. Rien ici ne part en production.
+
+name: ace-dev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ace
+      POSTGRES_PASSWORD: ace
+      POSTGRES_DB: ace_dev
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      # `pg_isready` sans base cible répond avant que celle-ci accepte des
+      # requêtes applicatives : on interroge donc explicitement ace_dev.
+      test: ["CMD-SHELL", "pg_isready -U ace -d ace_dev -q"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # BullMQ ne supporte pas que ses clés soient évincées sous les jobs en
+    # cours : on impose noeviction plutôt que de garder la politique par défaut.
+    command: ["redis-server", "--maxmemory-policy", "noeviction", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+  # Stockage objet compatible S3, pour développer sans compte cloud (§25).
+  #
+  # SeaweedFS plutôt que MinIO : les images MinIO ne sont plus distribuées
+  # publiquement sur Docker Hub. SeaweedFS expose la même API S3, persiste
+  # réellement les données et gère les URL signées — le code écrit ici se
+  # comporte donc comme en production.
+  s3:
+    image: chrislusf/seaweedfs:latest
+    restart: unless-stopped
+    command:
+      - server
+      - -dir=/data
+      - -s3
+      - -s3.port=8333
+      - -s3.config=/etc/seaweedfs/s3.json
+    ports:
+      - "${S3_PORT:-8333}:8333"
+    volumes:
+      - s3-data:/data
+      - ./infrastructure/docker/seaweedfs-s3.json:/etc/seaweedfs/s3.json:ro
+    healthcheck:
+      # La racine S3 répond 403 à une requête anonyme — c'est le comportement
+      # attendu, les actifs ne sont jamais publics. On vérifie donc que le
+      # service répond en HTTP, pas qu'il autorise l'accès.
+      test:
+        - CMD-SHELL
+        - wget -S --spider -q -T 3 http://localhost:8333/ 2>&1 | grep -q HTTP/
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
+  # Crée le bucket puis s'arrête. Sans lui, le premier upload échoue sur un
+  # bucket inexistant.
+  s3-init:
+    image: amazon/aws-cli:latest
+    depends_on:
+      s3:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: ace
+      AWS_SECRET_ACCESS_KEY: ace-secret-local
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >
+        aws --endpoint-url http://s3:8333 s3 mb s3://ace-assets 2>/dev/null || true;
+        aws --endpoint-url http://s3:8333 s3 ls &&
+        echo 'bucket ace-assets pret'
+    restart: "no"
+
+volumes:
+  postgres-data:
+  redis-data:
+  s3-data:

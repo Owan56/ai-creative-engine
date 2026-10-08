@@ -1,0 +1,11 @@
+{
+  "identities": [
+    {
+      "name": "ace-dev",
+      "credentials": [
+        { "accessKey": "ace", "secretKey": "ace-secret-local" }
+      ],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}
