@@ -19,6 +19,7 @@ import {
 } from "@ace/ai-core";
 import { CreditService } from "@ace/billing";
 import { GenerationPipeline } from "../src/GenerationPipeline.js";
+import { AssetKeyConflict, persistVideoAsset } from "../src/persistVideoAsset.js";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 const decrire = DATABASE_URL ? describe : describe.skip;
@@ -39,18 +40,21 @@ afterAll(async () => {
   await pool.end().catch(() => {});
 });
 
-/** Enregistre la vidéo produite comme un actif, comme le ferait le worker. */
+/**
+ * Enregistre la vidéo produite, exactement comme le worker.
+ *
+ * On appelle la fonction de production avec la clé que le moteur a renvoyée.
+ * La version précédente de ce helper fabriquait sa propre clé à partir de
+ * l'identifiant de génération — donc toujours unique — et ne pouvait pas
+ * voir qu'un moteur renvoyant deux fois la même clé faisait échouer la
+ * seconde génération en production.
+ */
 async function persistOutput(
   userId: string,
-  generationId: string,
+  _generationId: string,
   result: VideoGenerationResult,
 ): Promise<string> {
-  const { rows } = await pool.query<{ id: string }>(
-    `INSERT INTO assets (user_id, kind, storage_key, content_type, size_bytes)
-     VALUES ($1, 'VIDEO', $2, 'video/mp4', 0) RETURNING id`,
-    [userId, `${userId}/video/${generationId}.mp4`],
-  );
-  return rows[0]!.id;
+  return persistVideoAsset(pool, userId, result.videoKey);
 }
 
 function pipelineAvec(
@@ -320,6 +324,35 @@ decrire("GenerationPipeline", () => {
     // pas être facturé au-delà de ce qu'il a accepté.
     expect(issue.status).toBe("FAILED");
     expect(await credits.getBalance(userId)).toMatchObject({ balance: 100 });
+  });
+
+  it("enchaîne deux générations quand le moteur renvoie la même clé", async () => {
+    // Le moteur de démonstration pointe toujours vers le même fichier. Avec
+    // un INSERT nu, la deuxième génération mourait sur la contrainte
+    // d'unicité de `assets.storage_key` et se terminait en FAILED/INTERNAL —
+    // alors que le rendu, lui, avait réussi.
+    const uid = await utilisateur();
+    const p = pipelineAvec();
+
+    const a = await p.accept(demande(uid));
+    await p.run(a.id);
+    const b = await p.accept(demande(uid));
+    await p.run(b.id);
+
+    expect((await statut(a.id)).status).toBe("COMPLETED");
+    expect((await statut(b.id)).status).toBe("COMPLETED");
+  });
+
+  it("refuse de rendre l'actif d'un autre compte sous la même clé", async () => {
+    // Réutiliser la ligne existante sans vérifier le propriétaire livrerait
+    // la vidéo d'un autre utilisateur.
+    const a = await utilisateur();
+    const b = await utilisateur();
+    await persistVideoAsset(pool, a, "partage/video.mp4");
+
+    await expect(persistVideoAsset(pool, b, "partage/video.mp4")).rejects.toThrow(
+      AssetKeyConflict,
+    );
   });
 
   it("enregistre le moteur retenu, pour l'audit (§101)", async () => {

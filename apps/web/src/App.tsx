@@ -11,11 +11,13 @@ import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "./components/AppShell.js";
 import { Button, Card, EmptyState } from "./components/ui.js";
 import { Auth } from "./pages/Auth.js";
+import { Create } from "./pages/Create.js";
+import { Generations } from "./pages/Generations.js";
 import { Dashboard, toGeneration, type Generation } from "./pages/Dashboard.js";
 import {
   ApiError,
   listGenerations,
-  me,
+  me as chargerMoi,
   readToken,
   setSessionExpiredHandler,
   signOut,
@@ -48,7 +50,7 @@ export function App() {
       return;
     }
     const ctrl = new AbortController();
-    me(ctrl.signal)
+    chargerMoi(ctrl.signal)
       .then(({ user, credits }) => setEtat({ phase: "connecte", user, credits }))
       .catch((err) => {
         if (err instanceof DOMException && err.name === "AbortError") return;
@@ -92,7 +94,7 @@ export function App() {
       <Auth
         onAuthenticated={(user) => {
           setEtat({ phase: "verification" });
-          void me()
+          void chargerMoi()
             .then(({ credits }) => setEtat({ phase: "connecte", user, credits }))
             .catch(() => setEtat({ phase: "anonyme" }));
         }}
@@ -119,6 +121,29 @@ export function App() {
           error={erreur}
           onCreate={() => setPage("create")}
           onOpen={() => setPage("generations")}
+        />
+      ) : page === "create" ? (
+        <Create
+          credits={etat.credits.available}
+          onCancel={() => setPage("dashboard")}
+          onLaunched={() => {
+            // Le lancement a gelé des crédits : le solde affiché serait faux
+            // si on ne le rechargeait pas. La liste aussi a changé.
+            void chargerMoi()
+              .then(({ user, credits }) => setEtat({ phase: "connecte", user, credits }))
+              .catch(() => undefined);
+            void charger();
+            setPage("generations");
+          }}
+        />
+      ) : page === "generations" ? (
+        <Generations
+          onCreate={() => setPage("create")}
+          onBalanceChanged={() => {
+            void chargerMoi()
+              .then(({ user, credits }) => setEtat({ phase: "connecte", user, credits }))
+              .catch(() => undefined);
+          }}
         />
       ) : page === "settings" ? (
         <div className="dash">

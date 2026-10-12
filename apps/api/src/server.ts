@@ -20,7 +20,11 @@ import {
   type AuthUser,
 } from "@ace/auth";
 import { CreditError, CreditService } from "@ace/billing";
-import { GenerationError, type ModelRouter } from "@ace/ai-core";
+import {
+  GenerationError,
+  type ModelRegistry,
+  type ModelRouter,
+} from "@ace/ai-core";
 import type { GenerationPipeline } from "@ace/queue";
 
 export interface ServerDeps {
@@ -28,6 +32,7 @@ export interface ServerDeps {
   readonly auth: AuthService;
   readonly assets: AssetAccess;
   readonly credits: CreditService;
+  readonly registry: ModelRegistry;
   readonly router: ModelRouter;
   readonly pipeline: GenerationPipeline;
   /** Met la génération en file. Séparé pour tester sans Redis. */
@@ -65,6 +70,9 @@ class RateLimiter {
 // La connexion est la cible privilégiée d'une attaque par force brute.
 const limiteConnexion = new RateLimiter(10, 60_000);
 const limiteGeneration = new RateLimiter(30, 60_000);
+// L'estimation est appelée à chaque changement d'option dans le formulaire :
+// elle doit être plus permissive que la génération, sans être illimitée.
+const limiteEstimation = new RateLimiter(120, 60_000);
 
 function ip(request: FastifyRequest): string {
   return (
@@ -169,7 +177,101 @@ export function buildServer(deps: ServerDeps): FastifyInstance {
     return { assets: await deps.assets.listForUser(user) };
   });
 
+  // ---------------------------------------------------------------- capacités
+
+  /**
+   * Ce que les moteurs actifs savent réellement produire.
+   *
+   * L'interface s'en sert pour ne proposer que des options réalisables.
+   * Une liste écrite en dur côté client finirait par offrir des durées ou
+   * des résolutions qu'aucun moteur ne sait rendre : l'utilisateur ferait
+   * tout le parcours pour se heurter à un refus à la dernière étape.
+   *
+   * On renvoie l'union des capacités, sans jamais nommer les moteurs (§15).
+   */
+  app.get("/v1/capabilities", async (request) => {
+    await requireUser(request);
+
+    const durations = new Set<number>();
+    const resolutions = new Set<string>();
+    const aspectRatios = new Set<string>();
+    let imageToVideo = false;
+
+    for (const entree of deps.registry.usable()) {
+      const c = entree.provider.capabilities;
+      for (const d of c.durations) durations.add(d);
+      for (const r of c.resolutions) resolutions.add(r);
+      for (const a of c.aspectRatios) aspectRatios.add(a);
+      if (c.imageToVideo) imageToVideo = true;
+    }
+
+    // L'ordre des résolutions suit la qualité croissante, pas l'ordre
+    // d'enregistrement des moteurs.
+    const ORDRE = ["480p", "720p", "1080p", "4k"];
+
+    return {
+      durations: [...durations].sort((a, b) => a - b),
+      resolutions: ORDRE.filter((r) => resolutions.has(r)),
+      aspectRatios: [...aspectRatios],
+      imageToVideo,
+    };
+  });
+
   // ---------------------------------------------------------------- générations
+
+  /**
+   * Estime le coût d'une génération sans rien réserver.
+   *
+   * L'interface en a besoin pour afficher le prix avant que l'utilisateur ne
+   * confirme : débiter des crédits sans avoir annoncé le montant serait une
+   * mauvaise surprise. Le calcul est exactement celui de la création — même
+   * routeur, même plancher — sinon l'estimation mentirait.
+   *
+   * Aucun identifiant de moteur n'est renvoyé : le modèle est un détail
+   * interne (§15), jamais une information client.
+   */
+  app.post("/v1/generations/estimate", async (request) => {
+    const user = await requireUser(request);
+    if (limiteEstimation.depasse(user.id)) {
+      throw new HttpError(429, "Trop de demandes d'estimation. Patiente un instant.");
+    }
+
+    const corps = (request.body ?? {}) as Record<string, unknown>;
+    const solde = await deps.credits.getBalance(user.id);
+
+    const demande = {
+      generationId: "estimation",
+      prompt: typeof corps.prompt === "string" && corps.prompt.trim().length >= 3
+        ? corps.prompt
+        : "estimation",
+      durationSeconds: Number(corps.durationSeconds ?? 5),
+      resolution: String(corps.resolution ?? "1080p"),
+      aspectRatio: String(corps.aspectRatio ?? "9:16"),
+      mode: String(corps.mode ?? "product"),
+    } as Parameters<ModelRouter["route"]>[0];
+
+    // Budget volontairement infini : on veut connaître le prix même quand le
+    // solde est insuffisant, pour pouvoir le dire plutôt que d'afficher
+    // « aucun moteur disponible », qui serait faux. La vérification du solde
+    // reste faite à la création, seul endroit qui engage des crédits.
+    let credits: number;
+    try {
+      const decision = await deps.router.route(demande, {
+        maxCredits: Number.POSITIVE_INFINITY,
+      });
+      credits = Math.max(1, decision.chosen.cost.credits);
+    } catch {
+      // Aucun moteur ne sait produire cette combinaison d'options.
+      return { available: false as const, credits: null, balance: solde.available };
+    }
+
+    return {
+      available: true as const,
+      credits,
+      balance: solde.available,
+      affordable: credits <= solde.available,
+    };
+  });
 
   app.post("/v1/generations", async (request, reply) => {
     const user = await requireUser(request);

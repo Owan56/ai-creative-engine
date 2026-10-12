@@ -198,18 +198,68 @@ export function listGenerations(
   return request("/generations", { ...(signal ? { signal } : {}) });
 }
 
-export interface CreateGenerationInput {
-  prompt: string;
+export interface GenerationOptions {
   durationSeconds?: number;
   resolution?: string;
   aspectRatio?: string;
   mode?: string;
 }
 
+export interface CreateGenerationInput extends GenerationOptions {
+  prompt: string;
+  inputAssetId?: string;
+}
+
+/**
+ * Estimation de coût.
+ *
+ * `available: false` signifie qu'aucun moteur ne sait produire cette
+ * combinaison d'options — ce n'est pas une question de solde, que décrit
+ * `affordable`. Les deux cas appellent des messages différents.
+ */
+export type Estimate =
+  | { readonly available: false; readonly credits: null; readonly balance: number }
+  | {
+      readonly available: true;
+      readonly credits: number;
+      readonly balance: number;
+      readonly affordable: boolean;
+    };
+
+/** Ce que les moteurs actifs savent produire, tel que l'API le déclare. */
+export interface Capabilities {
+  readonly durations: readonly number[];
+  readonly resolutions: readonly string[];
+  readonly aspectRatios: readonly string[];
+  readonly imageToVideo: boolean;
+}
+
+export function getCapabilities(signal?: AbortSignal): Promise<Capabilities> {
+  return request("/capabilities", { ...(signal ? { signal } : {}) });
+}
+
+export function estimateGeneration(
+  options: GenerationOptions,
+  signal?: AbortSignal,
+): Promise<Estimate> {
+  return request("/generations/estimate", {
+    method: "POST",
+    body: options,
+    ...(signal ? { signal } : {}),
+  });
+}
+
 export function createGeneration(
   input: CreateGenerationInput,
 ): Promise<{ generation: { id: string; status: string; estimatedCredits: number } }> {
   return request("/generations", { method: "POST", body: input });
+}
+
+export function getGeneration(
+  id: string,
+  signal?: AbortSignal,
+): Promise<{ generation: GenerationRow }> {
+  return request(`/generations/${id}`, { ...(signal ? { signal } : {}) });
 }
 
 export function cancelGeneration(id: string): Promise<{ ok: true }> {

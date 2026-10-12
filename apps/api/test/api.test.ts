@@ -42,6 +42,7 @@ const app = buildServer({
   auth: new AuthService(pool),
   assets: new AssetAccess(pool),
   credits,
+  registry: registre,
   router,
   pipeline: new GenerationPipeline({
     pool,
@@ -211,6 +212,125 @@ decrire("API", () => {
 
     expect([402, 503]).toContain(r.statusCode);
     expect(misEnFile).toHaveLength(0);
+  });
+
+  it("ne publie que des capacités réellement produisibles", async () => {
+    const { token } = await inscrire();
+    const r = await app.inject({
+      method: "GET",
+      url: "/v1/capabilities",
+      headers: auth(token),
+    });
+
+    expect(r.statusCode).toBe(200);
+    const c = r.json();
+    expect(c.durations.length).toBeGreaterThan(0);
+
+    // Chaque durée annoncée doit être acceptée par au moins un moteur :
+    // proposer une option qui échoue en fin de parcours est pire que de ne
+    // pas la proposer du tout.
+    for (const d of c.durations) {
+      const e = await app.inject({
+        method: "POST",
+        url: "/v1/generations/estimate",
+        headers: auth(token),
+        payload: { durationSeconds: d, resolution: c.resolutions[0] },
+      });
+      expect(e.json().available, `durée ${d} annoncée mais non produisible`).toBe(
+        true,
+      );
+    }
+
+    // §15 : aucun moteur n'est nommé.
+    expect(JSON.stringify(c)).not.toMatch(/mock|ltx|wan|hunyuan/i);
+  });
+
+  it("estime le coût sans rien réserver ni mettre en file", async () => {
+    const { user, token } = await inscrire();
+    const avant = await credits.getBalance(user.id);
+
+    const r = await app.inject({
+      method: "POST",
+      url: "/v1/generations/estimate",
+      headers: auth(token),
+      payload: { durationSeconds: 5, resolution: "1080p", aspectRatio: "9:16" },
+    });
+
+    expect(r.statusCode).toBe(200);
+    const corps = r.json();
+    expect(corps.available).toBe(true);
+    expect(corps.credits).toBeGreaterThan(0);
+
+    // Une estimation qui gèle des crédits ou lance un job serait un débit
+    // déguisé : l'utilisateur n'a encore rien confirmé.
+    const apres = await credits.getBalance(user.id);
+    expect(apres.reserved).toBe(avant.reserved);
+    expect(apres.balance).toBe(avant.balance);
+    expect(misEnFile).toHaveLength(0);
+  });
+
+  it("annonce exactement le montant que la génération débite", async () => {
+    const { user, token } = await inscrire();
+    const options = { durationSeconds: 5, resolution: "1080p", aspectRatio: "9:16" };
+
+    const estimation = await app.inject({
+      method: "POST",
+      url: "/v1/generations/estimate",
+      headers: auth(token),
+      payload: options,
+    });
+
+    const creation = await app.inject({
+      method: "POST",
+      url: "/v1/generations",
+      headers: auth(token),
+      payload: { ...options, prompt: "un collier doré sur fond studio" },
+    });
+
+    expect(creation.statusCode).toBe(202);
+    // Si ces deux nombres divergent, le prix affiché avant confirmation est
+    // un mensonge — c'est la seule propriété qui justifie cet endpoint.
+    expect(creation.json().generation.estimatedCredits).toBe(
+      estimation.json().credits,
+    );
+    expect((await credits.getBalance(user.id)).reserved).toBe(
+      estimation.json().credits,
+    );
+  });
+
+  it("donne quand même le prix lorsque le solde est insuffisant", async () => {
+    const { user, token } = await inscrire();
+    await pool.query(`UPDATE credit_accounts SET balance = 0 WHERE user_id = $1`, [
+      user.id,
+    ]);
+
+    const r = await app.inject({
+      method: "POST",
+      url: "/v1/generations/estimate",
+      headers: auth(token),
+      payload: { durationSeconds: 5 },
+    });
+
+    expect(r.statusCode).toBe(200);
+    // Répondre « indisponible » serait faux : le moteur existe, c'est le
+    // solde qui manque. L'interface doit pouvoir proposer un rechargement.
+    expect(r.json().available).toBe(true);
+    expect(r.json().credits).toBeGreaterThan(0);
+    expect(r.json().affordable).toBe(false);
+  });
+
+  it("ne révèle jamais le moteur utilisé dans l'estimation", async () => {
+    const { token } = await inscrire();
+    const r = await app.inject({
+      method: "POST",
+      url: "/v1/generations/estimate",
+      headers: auth(token),
+      payload: { durationSeconds: 5 },
+    });
+
+    // §15 : le modèle est un détail d'implémentation, jamais exposé au client.
+    const brut = JSON.stringify(r.json());
+    expect(brut).not.toMatch(/mock|ltx|wan|hunyuan|provider/i);
   });
 
   it("ne laisse pas voir la génération d'autrui (§108)", async () => {

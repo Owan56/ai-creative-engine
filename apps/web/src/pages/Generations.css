@@ -1,0 +1,169 @@
+/**
+ * Liste des générations.
+ *
+ * Mêmes règles que le reste : tokens uniquement, et jamais d'information
+ * portée par la seule couleur — chaque pastille affiche son libellé.
+ */
+
+.gens {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  max-width: 980px;
+  margin: 0 auto;
+  padding-bottom: var(--sp-16);
+}
+
+.gens__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.gens__title {
+  margin: 0;
+  font-size: var(--fs-h2);
+  letter-spacing: var(--ls-h2);
+  color: var(--aurya-text);
+}
+
+.gens__sub {
+  margin: var(--sp-1) 0 0;
+  font-size: var(--fs-small);
+  color: var(--aurya-text-muted);
+}
+
+.gens__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* `.card.gen` et non `.gen` seul : la règle de padding de `.card` a la même
+   spécificité et gagnerait selon l'ordre des imports, collant le contenu au
+   bord droit de la carte. */
+.card.gen {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  padding: var(--sp-4) var(--sp-5);
+}
+
+.gen__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.gen__prompt {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  color: var(--aurya-text);
+  /* Un prompt long ne doit pas étirer la carte. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.gen__meta {
+  margin: 0;
+  font-size: var(--fs-caption);
+  color: var(--aurya-text-muted);
+}
+
+.gen__why {
+  margin: 0;
+  font-size: var(--fs-small);
+  color: var(--aurya-text-secondary);
+}
+
+.gen__side {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-shrink: 0;
+}
+
+.gen__credits {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: var(--fs-body);
+  color: var(--aurya-text);
+  white-space: nowrap;
+}
+
+.gen__credits-note {
+  font-size: var(--fs-caption);
+  color: var(--aurya-text-muted);
+}
+
+/* ------------------------------------------------------------ pastilles */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  align-self: flex-start;
+  padding: 2px var(--sp-2);
+  border: 1px solid var(--aurya-border);
+  border-radius: 999px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--aurya-text-secondary);
+}
+
+.pill__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.pill--wait {
+  color: var(--aurya-text-muted);
+}
+
+.pill--run {
+  color: var(--aurya-blue);
+  border-color: var(--aurya-blue);
+}
+
+.pill--ok {
+  color: var(--aurya-success);
+  border-color: var(--aurya-success);
+}
+
+.pill--ko {
+  color: var(--aurya-error);
+  border-color: var(--aurya-error);
+}
+
+.pill--off {
+  color: var(--aurya-text-muted);
+}
+
+@media (max-width: 640px) {
+  .card.gen {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .gen__side {
+    justify-content: space-between;
+  }
+
+  .gen__credits {
+    align-items: flex-start;
+  }
+}

@@ -13,6 +13,7 @@ import {
   GenerationPipeline,
   createGenerationQueue,
   enqueueGeneration,
+  persistVideoAsset,
 } from "@ace/queue";
 import { buildServer } from "./server.js";
 
@@ -43,14 +44,8 @@ const pipeline = new GenerationPipeline({
   credits,
   router,
   // Enregistre la vidéo produite comme un actif de l'utilisateur.
-  persistOutput: async (userId, generationId, result) => {
-    const { rows } = await pool.query<{ id: string }>(
-      `INSERT INTO assets (user_id, kind, storage_key, content_type, size_bytes)
-       VALUES ($1, 'VIDEO', $2, 'video/mp4', 0) RETURNING id`,
-      [userId, result.videoKey],
-    );
-    return rows[0]!.id;
-  },
+  persistOutput: (userId, _generationId, result) =>
+    persistVideoAsset(pool, userId, result.videoKey),
   maxConcurrentPerUser: Number(process.env.MAX_CONCURRENT_GENERATIONS ?? 2),
 });
 
@@ -59,6 +54,7 @@ const app = buildServer({
   auth: new AuthService(pool),
   assets: new AssetAccess(pool),
   credits,
+  registry,
   router,
   pipeline,
   enqueue: (generationId, userId) =>

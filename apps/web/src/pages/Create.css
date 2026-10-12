@@ -1,0 +1,454 @@
+/**
+ * Flux de création.
+ *
+ * Aucune couleur littérale : tout vient de `tokens.css`, donc le thème clair
+ * fonctionne sans retouche. Aucune information n'est portée par la seule
+ * couleur — chaque état sélectionné porte aussi une coche ou un libellé.
+ */
+
+.create {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  max-width: 880px;
+  margin: 0 auto;
+  padding-bottom: var(--sp-16);
+}
+
+/* ------------------------------------------------------------ en-tête */
+
+.create__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+.create__step {
+  margin: 0 0 var(--sp-1);
+  font-size: var(--fs-caption);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--aurya-text-muted);
+}
+
+.create__title {
+  margin: 0;
+  font-size: var(--fs-h2);
+  letter-spacing: var(--ls-h2);
+  color: var(--aurya-text);
+}
+
+.create__bar {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--aurya-surface-2);
+  overflow: hidden;
+}
+
+.create__bar > span {
+  display: block;
+  height: 100%;
+  background: var(--aurya-gradient);
+  transition: width var(--t-base) var(--ease);
+}
+
+.create__panel {
+  padding: var(--sp-6);
+}
+
+/* ------------------------------------------------------------ étapes */
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.step__intro {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--aurya-text-secondary);
+}
+
+/* ------------------------------------------------------------ options */
+
+.opts {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.opts__legend {
+  padding: 0 0 var(--sp-3);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--aurya-text-secondary);
+}
+
+.opts__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--sp-3);
+}
+
+.opts__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.opt {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-4);
+  border: 1px solid var(--aurya-border);
+  border-radius: var(--radius-card);
+  background: var(--aurya-surface);
+  cursor: pointer;
+  transition:
+    border-color var(--t-fast) var(--ease),
+    background var(--t-fast) var(--ease),
+    transform var(--t-fast) var(--ease);
+}
+
+.opt:hover {
+  border-color: var(--aurya-indigo);
+  transform: translateY(-1px);
+}
+
+/* Le focus clavier doit être au moins aussi visible que le survol. */
+.opt:focus-within {
+  outline: 2px solid var(--aurya-blue);
+  outline-offset: 2px;
+}
+
+.opt input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.opt--on {
+  border-color: var(--aurya-indigo);
+  background: var(--aurya-surface-2);
+}
+
+.opt__label {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--aurya-text);
+}
+
+.opt__detail {
+  font-size: var(--fs-small);
+  color: var(--aurya-text-muted);
+}
+
+.opt__check {
+  position: absolute;
+  top: var(--sp-3);
+  right: var(--sp-3);
+  font-size: var(--fs-small);
+  color: var(--aurya-blue);
+}
+
+.chip {
+  position: relative;
+  padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--aurya-border);
+  border-radius: var(--radius-btn);
+  background: var(--aurya-surface);
+  font-size: var(--fs-body);
+  color: var(--aurya-text-secondary);
+  cursor: pointer;
+  transition:
+    border-color var(--t-fast) var(--ease),
+    color var(--t-fast) var(--ease);
+}
+
+.chip input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.chip:focus-within {
+  outline: 2px solid var(--aurya-blue);
+  outline-offset: 2px;
+}
+
+.chip--on {
+  border-color: var(--aurya-indigo);
+  background: var(--aurya-surface-2);
+  color: var(--aurya-text);
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------ image */
+
+.drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-10) var(--sp-5);
+  border: 1px dashed var(--aurya-border);
+  border-radius: var(--radius-card-lg);
+  background: var(--aurya-surface);
+  cursor: pointer;
+  transition: border-color var(--t-fast) var(--ease);
+}
+
+.drop:hover {
+  border-color: var(--aurya-indigo);
+}
+
+.drop:focus-within {
+  outline: 2px solid var(--aurya-blue);
+  outline-offset: 2px;
+}
+
+.drop input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.drop__icon {
+  color: var(--aurya-text-muted);
+}
+
+.drop__img {
+  max-height: 200px;
+  max-width: 100%;
+  border-radius: var(--radius-card);
+  object-fit: contain;
+}
+
+.drop__label {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--aurya-text);
+  word-break: break-all;
+  text-align: center;
+}
+
+.drop__hint {
+  font-size: var(--fs-small);
+  color: var(--aurya-text-muted);
+}
+
+/* ------------------------------------------------------------ texte */
+
+.ta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.ta__label {
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--aurya-text-secondary);
+}
+
+.ta textarea {
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--aurya-border);
+  border-radius: var(--radius-input);
+  background: var(--aurya-surface);
+  color: var(--aurya-text);
+  font: inherit;
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.ta textarea:focus-visible {
+  outline: 2px solid var(--aurya-blue);
+  outline-offset: 1px;
+  border-color: var(--aurya-indigo);
+}
+
+.ta__hint {
+  font-size: var(--fs-caption);
+  color: var(--aurya-text-muted);
+}
+
+/* ------------------------------------------------------------ récap */
+
+.recap {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  border: 1px solid var(--aurya-border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.recap__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--aurya-border);
+}
+
+.recap__row:last-child {
+  border-bottom: 0;
+}
+
+.recap__row dt {
+  font-size: var(--fs-small);
+  color: var(--aurya-text-muted);
+}
+
+.recap__row dd {
+  margin: 0;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--aurya-text);
+  text-align: right;
+}
+
+.recap__prompt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  border-radius: var(--radius-card);
+  background: var(--aurya-surface-2);
+}
+
+.recap__prompt-label {
+  font-size: var(--fs-caption);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--aurya-text-muted);
+}
+
+.recap__prompt p {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--aurya-text-secondary);
+}
+
+.recap__cost {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--aurya-text-secondary);
+}
+
+.recap__cost strong {
+  color: var(--aurya-text);
+}
+
+/* ------------------------------------------------------------ avis */
+
+.notice,
+.alert {
+  margin: 0;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-card);
+  font-size: var(--fs-small);
+  line-height: 1.6;
+}
+
+.notice {
+  border: 1px solid var(--aurya-border);
+  background: var(--aurya-surface-2);
+  color: var(--aurya-text-secondary);
+}
+
+/* Le liseré coloré ne fait que renforcer un message déjà explicite. */
+.alert--warn {
+  border: 1px solid var(--aurya-warning);
+  background: var(--aurya-surface-2);
+  color: var(--aurya-text);
+}
+
+.alert--error {
+  border: 1px solid var(--aurya-error);
+  background: var(--aurya-surface-2);
+  color: var(--aurya-text);
+}
+
+/* ------------------------------------------------------------ pied */
+
+.create__foot {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4);
+  border: 1px solid var(--aurya-border);
+  border-radius: var(--radius-card-lg);
+  background: var(--aurya-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.create__cost {
+  display: flex;
+  flex-direction: column;
+  color: var(--aurya-text);
+}
+
+/* Le montant et son unité tiennent sur une ligne : « 1 » seul au-dessus de
+   « crédit » se lit mal. */
+.create__cost-amount {
+  font-size: var(--fs-h3);
+  letter-spacing: var(--ls-h3);
+  white-space: nowrap;
+}
+
+.create__cost-sub {
+  font-size: var(--fs-small);
+  font-weight: 400;
+  color: var(--aurya-text-muted);
+}
+
+.create__cost-wait {
+  font-size: var(--fs-small);
+  color: var(--aurya-text-muted);
+}
+
+.create__nav {
+  display: flex;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .create__foot {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .create__nav {
+    justify-content: flex-end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .opt,
+  .chip,
+  .create__bar > span {
+    transition: none;
+  }
+
+  .opt:hover {
+    transform: none;
+  }
+}
