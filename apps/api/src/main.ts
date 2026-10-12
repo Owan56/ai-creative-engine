@@ -12,6 +12,7 @@ import { ModelRouter, buildRegistry, configFromEnv } from "@ace/ai-core";
 import {
   GenerationPipeline,
   createGenerationQueue,
+  createGenerationWorker,
   enqueueGeneration,
   persistVideoAsset,
 } from "@ace/queue";
@@ -85,6 +86,27 @@ if (webDir) {
   console.log(`Interface servie depuis ${webDir}`);
 }
 
+/**
+ * Worker intégré.
+ *
+ * `enqueueGeneration` dépose le job dans Redis, mais rien ne le consomme tant
+ * qu'aucun worker ne tourne : sans lui, les générations restent en QUEUED
+ * indéfiniment. En production on sépare les deux processus, pour qu'une
+ * génération longue ne partage pas le sort de l'API au redémarrage. Sur un
+ * déploiement à un seul service — une démonstration, un petit volume — ce
+ * drapeau évite de payer un second conteneur.
+ */
+const worker =
+  process.env.WORKER_IN_PROCESS === "true"
+    ? createGenerationWorker({
+        connection,
+        pipeline,
+        concurrency: Number(process.env.WORKER_CONCURRENCY ?? 1),
+      })
+    : null;
+
+if (worker) console.log("Worker intégré actif dans ce processus.");
+
 const port = Number(process.env.PORT ?? 3001);
 await app.listen({ port, host: "0.0.0.0" });
 console.log(`API sur http://localhost:${port}`);
@@ -94,6 +116,8 @@ for (const signal of ["SIGINT", "SIGTERM"] as const) {
   process.on(signal, () => {
     void (async () => {
       await app.close();
+      // Le worker se ferme avant la file : l'inverse couperait un job en vol.
+      if (worker) await worker.close();
       await queue.close();
       await pool.end();
       process.exit(0);
